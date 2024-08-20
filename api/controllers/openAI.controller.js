@@ -21,6 +21,126 @@ async function getSynonyms(req, res) {
   }
 }
 
+// async function generateTasks (req, res) {
+//   try {
+//     const completion = await openai.chat.completion.create({
+//       messages: [
+//         {
+//           role: "system",
+//           content: `I want you to generate different tasks to develop a project following the next description: ${req.body.text}
+          
+//           1. These tasks should be able to be done in less than two days.
+//           2. These tasks should be for back-end and front-end
+//           3. These tasks should have a priority number from one to three being three the top priority.
+          
+//           Let's think step by step:
+//           3.1 Generate a task following the description
+//           3.2 Generate a priority number. If this task blocks another task generated, assign top priority.
+//           3.3 Keep in mind if the task can be made in less than an hour should have the less priority posible.
+          
+//           The response must be in json format. 
+//           {
+//             "title": String,
+//             "priority": Number
+//           }`
+//         }
+//       ],
+//       model: "gpt-3.5-turbo-1106",
+//       response_format: { type: "json_object" },
+//     })
+//     return res.json(completion.choices[0]);
+//   } catch (error) {
+//     return res.send(error)
+//   }
+// }
+
+async function generateTasks(req, res) {
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          rules:`
+          1. Tasks are meant to be made in less than two days.
+          2. Do not make tasks that are full features.
+          `,
+          content: `I want you to generate different tasks to develop a project following the next description: ${req.body.text}
+          
+          1. If the task generated is a full feature, divide it in smaller tasks, i.e: "Users should be able to Login" could be divide
+          in different tasks like "Make Login in API", "Create a Login Form".
+          2. These tasks should be for back-end and front-end
+          3. These tasks should have a priority number from one to three being three the top priority.
+          
+          Let's think step by step:
+          3.1 Generate a task following the description
+          3.2 Generate a priority number. If this task blocks another task generated, assign top priority.
+          3.3 Keep in mind if the task can be made in less than an hour should have the less priority posible.
+          `,
+          response_format: `
+          - title: String
+          - priority: Number
+
+          {
+            "title": String,
+            "priority": Number
+          }
+          `
+        }
+      ],
+      // response_format is not a valid parameter for the OpenAI API
+    });
+    // Ensure response is in expected format
+    if (completion.choices && completion.choices.length > 0) {
+      return res.json(completion.choices[0].message);
+    } else {
+      return res.status(500).json({ error: 'No valid response from OpenAI API' });
+    }
+  } catch (error) {
+    // Return a more detailed error response
+    console.error('Error generating tasks:', error);
+    return res.status(500).json({ error: error.message });
+  }
+}
+
+async function separateByRoles(req, res){
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content: `I want you to classify tasks between two sections: Back-end and Front-end in this description: ${JSON.stringify(req.body.text)}
+          Remember that all the tasks referring to an API or server should be classified in Back-end and all the tasks referring to Client side
+          should be classified in Front-end.
+
+          Let's think step by step:
+          1. When reading a task identify if the task is referring to an API or server
+          2. If last instruction is affirmative classify it in Back-end
+          3. If first instruction is negative classify it in Front-end
+
+          The response should be in JSON format:
+          {
+            FrontEnd: [{task: String}],
+            BackEnd: [{task: String}]
+          }
+          `
+        }
+      ],
+      // response_format is not a valid parameter for the OpenAI API
+    });
+    // Ensure response is in expected format
+    if (completion.choices && completion.choices.length > 0) {
+      return res.json(completion.choices[0].message);
+    } else {
+      return res.status(500).json({ error: 'No valid response from OpenAI API' });
+    }
+  } catch (error) {
+    console.error('Error separating by roles: ', error)
+    return res.status(500).json({ error: error.message })
+  }
+}
+
 async function createDrawing (req, res) {
   try {
     //DALL-E-2 TE PERMITE CREAR VARIAS IMÁGENES EN UNA MISMA PETICIÓN, PERO SON UNA MIERDA
@@ -193,6 +313,9 @@ async function functionCalling (req, res) {
 
 module.exports = {
   getSynonyms,
+  generateTasks,
   createDrawing,
-  functionCalling
+  functionCalling, 
+  generateTasks, 
+  separateByRoles
 }
