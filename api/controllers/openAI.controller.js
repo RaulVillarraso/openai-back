@@ -74,6 +74,7 @@ async function generateTasks(req, res) {
 
           # CONTEXT #
           This prompt is in charge of creating the list of tasks i need to do in a certain sprint or to implement a new feature for my project
+          Our project has the following stack: [Node.js, Express.js, Vue.js, MongoDB, Mongoose, Tailwind]
 
           # RULES #
           - Do not cut off your responses
@@ -84,8 +85,7 @@ async function generateTasks(req, res) {
           Full stack junior team
 
           # GOAL #
-          I want you to generate different tasks to develop a project following the next description: ${req.body.text}
-          I want to develop a project, and i need you to know all the steps that i will make to finish the feature, or the process i give you in the description.
+          I want you to generate different tasks to develop a feature following the next description: ${req.body.text}
 
           1. If the task generated is a full feature, divide it in smaller tasks, i.e: "Users should be able to Login" could be divide
           in different tasks like "Make Login in API", "Create a Login Form".
@@ -118,32 +118,7 @@ async function generateTasks(req, res) {
             "weight": enum(1,2,4,8),
             "status": "Backlog",
           }
-          `,
-          // response_format: `
-          // - title: String
-          // - priority: Enum(low, medium, high)
-          // - description : String
-          // - type: enum(feature, chore, bug)
-          // - weight: enum(1,2,4,8)
-          // - status: String
-          // - checklist: Array of objects (Optional)
-          // - checklist.name: String
-          // - checklist.done: Boolean
-
-          // {
-          //   "title": String,
-          //   "priority": enum(low, medium, high),
-          //   "description": String,
-          //   "type": enum(feature, chore, bug),
-          //   "weight": enum(1,2,4,8),
-          //   "status": "Backlog",
-          //   "checklist":[
-          //   {
-          //     "name": String,
-          //     "done": False
-          //   }]
-          // }
-          // `
+          `
         }
       ],
       // response_format is not a valid parameter for the OpenAI API
