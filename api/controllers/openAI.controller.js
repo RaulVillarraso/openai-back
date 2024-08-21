@@ -65,14 +65,33 @@ async function generateTasks(req, res) {
           1. Tasks are meant to be made in less than two days.
           2. Do not make tasks that are full features.
           `,
-          content: `I want you to generate different tasks to develop a project following the next description: ${req.body.text}
-          
+          content: `
+          # STYLE #
+          You are Project Manager with years of experience in tech projects, willing to use your knowledge to its best to try and generate the best process to our projects.
+
+          # TONE #
+          Normal
+
+          # CONTEXT #
+          This prompt is in charge of creating the list of tasks i need to do in a certain sprint or to implement a new feature for my project
+
+          # RULES #
+          - Do not cut off your responses
+          - I only want the array, nothing more
+          - Separate design tasks from the development tasks but don't group them by design or development, all in the same array
+
+          # AUDIENCE #
+          Full stack junior team
+
+          # GOAL #
+          I want you to generate different tasks to develop a project following the next description: ${req.body.text}
+          I want to develop a project, and i need you to know all the steps that i will make to finish the feature, or the process i give you in the description.
+
           1. If the task generated is a full feature, divide it in smaller tasks, i.e: "Users should be able to Login" could be divide
           in different tasks like "Make Login in API", "Create a Login Form".
           2. These tasks should have all the properties especified on the response format
           3. The weight of the tasks should be a relation between time cost and relevance
-          4. The Checklist field is an array of objects containing name and done. This field is optional
-          5. Maybe on the generated tasks should be designer/UX-UI subtasks. Separate tasks following who are gonna make the task, developers or designers. 
+          4. Maybe on the generated tasks should be designer/UX-UI subtasks. Separate tasks following who are gonna make the task, developers or designers. 
           
           Let's think step by step:
           2.1 Generate response following the description
@@ -80,9 +99,6 @@ async function generateTasks(req, res) {
           2.3 Analyze if the task is relevant to finish the feature.
           2.4 Calculate the completation time for the task
           2.5 Generate a number(1,2,4,8) that represent the time in hours
-          2.6 If the task weight is lower than 2 the checklist should be empty
-          2.7 Analyze if the task needs a subtask or a list of subtask to be done.
-          2.8 Generate an array of objects where the property name are the subtasks needed to complete the task in the checklist field.
 
           # RESPONSE #
           - The response must be in json format
@@ -93,9 +109,6 @@ async function generateTasks(req, res) {
           - type: enum(feature, chore, bug)
           - weight: enum(1,2,4,8)
           - status: String
-          - checklist: Array of objects (Optional)
-          - checklist.name: String
-          - checklist.done: Boolean
 
           {
             "title": String,
@@ -104,11 +117,6 @@ async function generateTasks(req, res) {
             "type": enum(feature, chore, bug),
             "weight": enum(1,2,4,8),
             "status": "Backlog",
-            "checklist":[
-            {
-              "name": String,
-              "done": False
-            }]
           }
           `,
           // response_format: `
