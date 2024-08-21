@@ -69,23 +69,73 @@ async function generateTasks(req, res) {
           
           1. If the task generated is a full feature, divide it in smaller tasks, i.e: "Users should be able to Login" could be divide
           in different tasks like "Make Login in API", "Create a Login Form".
-          2. These tasks should be for back-end and front-end
-          3. These tasks should have a priority number from one to three being three the top priority.
+          2. These tasks should have all the properties especified on the response format
+          3. The weight of the tasks should be a relation between time cost and relevance
+          4. The Checklist field is an array of objects containing name and done. This field is optional
+          5. Maybe on the generated tasks should be designer/UX-UI subtasks. Separate tasks following who are gonna make the task, developers or designers. 
           
           Let's think step by step:
-          3.1 Generate a task following the description
-          3.2 Generate a priority number. If this task blocks another task generated, assign top priority.
-          3.3 Keep in mind if the task can be made in less than an hour should have the less priority posible.
-          `,
-          response_format: `
+          2.1 Generate response following the description
+          2.2 Generate a priority field. If this task blocks another task generated, assign high priority.
+          2.3 Analyze if the task is relevant to finish the feature.
+          2.4 Calculate the completation time for the task
+          2.5 Generate a number(1,2,4,8) that represent the time in hours
+          2.6 If the task weight is lower than 2 the checklist should be empty
+          2.7 Analyze if the task needs a subtask or a list of subtask to be done.
+          2.8 Generate an array of objects where the property name are the subtasks needed to complete the task in the checklist field.
+
+          # RESPONSE #
+          - The response must be in json format
+
           - title: String
-          - priority: Number
+          - priority: Enum(low, medium, high)
+          - description : String
+          - type: enum(feature, chore, bug)
+          - weight: enum(1,2,4,8)
+          - status: String
+          - checklist: Array of objects (Optional)
+          - checklist.name: String
+          - checklist.done: Boolean
 
           {
             "title": String,
-            "priority": Number
+            "priority": enum(low, medium, high),
+            "description": String,
+            "type": enum(feature, chore, bug),
+            "weight": enum(1,2,4,8),
+            "status": "Backlog",
+            "checklist":[
+            {
+              "name": String,
+              "done": False
+            }]
           }
-          `
+          `,
+          // response_format: `
+          // - title: String
+          // - priority: Enum(low, medium, high)
+          // - description : String
+          // - type: enum(feature, chore, bug)
+          // - weight: enum(1,2,4,8)
+          // - status: String
+          // - checklist: Array of objects (Optional)
+          // - checklist.name: String
+          // - checklist.done: Boolean
+
+          // {
+          //   "title": String,
+          //   "priority": enum(low, medium, high),
+          //   "description": String,
+          //   "type": enum(feature, chore, bug),
+          //   "weight": enum(1,2,4,8),
+          //   "status": "Backlog",
+          //   "checklist":[
+          //   {
+          //     "name": String,
+          //     "done": False
+          //   }]
+          // }
+          // `
         }
       ],
       // response_format is not a valid parameter for the OpenAI API
